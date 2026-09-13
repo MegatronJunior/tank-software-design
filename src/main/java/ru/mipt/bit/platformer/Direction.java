@@ -25,5 +25,4 @@ public enum Direction {
     public float getAngle() {
         return angle;
     }
-
 }
