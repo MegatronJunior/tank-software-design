@@ -35,12 +35,7 @@ public class GameDesktopLauncher implements ApplicationListener {
     private Texture blueTankTexture;
     private TextureRegion playerGraphics;
     private Rectangle playerRectangle;
-    // player current position coordinates on level 10x8 grid (e.g. x=0, y=1)
-    private GridPoint2 playerCoordinates;
-    // which tile the player want to go next
-    private GridPoint2 playerDestinationCoordinates;
-    private float playerMovementProgress = 1f;
-    private float playerRotation;
+    private Tank tank;
 
     private Texture greenTreeTexture;
     private TextureRegion treeObstacleGraphics;
@@ -62,10 +57,13 @@ public class GameDesktopLauncher implements ApplicationListener {
         // TextureRegion represents Texture portion, there may be many TextureRegion instances of the same Texture
         playerGraphics = new TextureRegion(blueTankTexture);
         playerRectangle = createBoundingRectangle(playerGraphics);
-        // set player initial position
-        playerDestinationCoordinates = new GridPoint2(1, 1);
-        playerCoordinates = new GridPoint2(playerDestinationCoordinates);
-        playerRotation = 0f;
+
+        tank = new Tank(
+                new GridPoint2(1, 1),
+                Direction.RIGHT,
+                MOVEMENT_SPEED
+        );
+
 
         greenTreeTexture = new Texture("images/greenTree.png");
         treeObstacleGraphics = new TextureRegion(greenTreeTexture);
@@ -95,27 +93,26 @@ public class GameDesktopLauncher implements ApplicationListener {
             direction = Direction.RIGHT;
         }
 
-        if (direction != null && isEqual(playerMovementProgress, 1f)) {
-            GridPoint2 nextCoordinates =
-                    direction.nextCoordinates(playerCoordinates);
+        if (direction != null && tank.hasFinishedCurrentMovement()) {
+            GridPoint2 nextCoordinates = direction.nextCoordinates(tank.currentCoordinates());
 
             if (!treeObstacleCoordinates.equals(nextCoordinates)) {
-                playerDestinationCoordinates.set(nextCoordinates);
-                playerMovementProgress = 0f;
+                tank.startMovementTo(nextCoordinates);
             }
 
-            playerRotation = direction.getAngle();
+            tank.face(direction);
         }
 
 
         // calculate interpolated player screen coordinates
-        tileMovement.moveRectangleBetweenTileCenters(playerRectangle, playerCoordinates, playerDestinationCoordinates, playerMovementProgress);
+        tileMovement.moveRectangleBetweenTileCenters(
+                playerRectangle,
+                tank.currentCoordinates(),
+                tank.destinationCoordinates(),
+                tank.movementProgress()
+        );
 
-        playerMovementProgress = continueProgress(playerMovementProgress, deltaTime, MOVEMENT_SPEED);
-        if (isEqual(playerMovementProgress, 1f)) {
-            // record that the player has reached his/her destination
-            playerCoordinates.set(playerDestinationCoordinates);
-        }
+        tank.continueMovement(deltaTime);
 
         // render each tile of the level
         levelRenderer.render();
@@ -124,7 +121,7 @@ public class GameDesktopLauncher implements ApplicationListener {
         batch.begin();
 
         // render player
-        drawTextureRegionUnscaled(batch, playerGraphics, playerRectangle, playerRotation);
+        drawTextureRegionUnscaled(batch, playerGraphics, playerRectangle, tank.rotationAngle());
 
         // render tree obstacle
         drawTextureRegionUnscaled(batch, treeObstacleGraphics, treeObstacleRectangle, 0f);
