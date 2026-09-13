@@ -37,6 +37,7 @@ public class GameDesktopLauncher implements ApplicationListener {
     private Rectangle playerRectangle;
     private Tank tank;
     private Tree tree;
+    private Field field;
 
     private Texture greenTreeTexture;
     private TextureRegion treeObstacleGraphics;
@@ -70,6 +71,12 @@ public class GameDesktopLauncher implements ApplicationListener {
         tree = new Tree(new GridPoint2(1, 3));
         treeObstacleRectangle = createBoundingRectangle(treeObstacleGraphics);
         moveRectangleAtTileCenter(groundLayer, treeObstacleRectangle, tree.coordinates());
+
+        field = new Field(
+                groundLayer.getWidth(),
+                groundLayer.getHeight(),
+                tree
+        );
     }
 
     @Override
@@ -96,7 +103,7 @@ public class GameDesktopLauncher implements ApplicationListener {
         if (direction != null && tank.hasFinishedCurrentMovement()) {
             GridPoint2 nextCoordinates = direction.nextCoordinates(tank.currentCoordinates());
 
-            if (!tree.isHere(nextCoordinates)) {
+            if (field.isFree(nextCoordinates)) {
                 tank.startMovementTo(nextCoordinates);
             }
 
