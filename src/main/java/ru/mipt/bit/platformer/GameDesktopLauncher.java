@@ -91,7 +91,7 @@ public class GameDesktopLauncher implements ApplicationListener {
 
         if (direction != null && tank.hasFinishedCurrentMovement()) {
             GridPoint2 nextCoordinates =
-                    direction.nextCoordinates(tank.currentCoordinates());
+                    tank.currentCoordinates().add(direction.getVector());
 
             if (field.isFree(nextCoordinates)) {
                 tank.startMovementTo(nextCoordinates);

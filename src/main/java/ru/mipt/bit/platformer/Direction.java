@@ -8,18 +8,16 @@ public enum Direction {
     LEFT(-1, 0, -180f),
     RIGHT(1, 0, 0f);
 
-    private final int deltaX;
-    private final int deltaY;
+    private final GridPoint2 vector;
     private final float angle;
 
     Direction(int deltaX, int deltaY, float angle) {
-        this.deltaX = deltaX;
-        this.deltaY = deltaY;
+        this.vector = new GridPoint2(deltaX, deltaY);
         this.angle = angle;
     }
 
-    public GridPoint2 nextCoordinates(GridPoint2 coordinates) {
-        return new GridPoint2(coordinates).add(deltaX, deltaY);
+    public GridPoint2 getVector() {
+        return new GridPoint2(vector);
     }
 
     public float getAngle() {
