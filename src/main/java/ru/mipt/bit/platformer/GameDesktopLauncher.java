@@ -4,21 +4,14 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.GridPoint2;
-import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.Rectangle;
-import ru.mipt.bit.platformer.util.TileMovement;
-
-import static com.badlogic.gdx.Input.Keys.*;
-import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
+import java.util.Set;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 
 public class GameDesktopLauncher implements ApplicationListener {
@@ -29,18 +22,20 @@ public class GameDesktopLauncher implements ApplicationListener {
 
     private TiledMap level;
     private MapRenderer levelRenderer;
-    private TileMovement tileMovement;
 
-    private Texture blueTankTexture;
-    private TextureRegion tankGraphics;
-    private Rectangle tankRectangle;
     private Tank tank;
+    private TankRenderer tankRenderer;
+
     private Tree tree;
+    private TreeRenderer treeRenderer;
+
+    private GameRenderer gameRenderer;
+
     private Field field;
 
-    private Texture greenTreeTexture;
-    private TextureRegion treeGraphics;
-    private Rectangle treeRectangle;
+    private KeyboardInputHandler inputHandler;
+    private GameController gameController;
+
 
     @Override
     public void create() {
@@ -50,13 +45,6 @@ public class GameDesktopLauncher implements ApplicationListener {
         level = new TmxMapLoader().load("level.tmx");
         levelRenderer = createSingleLayerMapRenderer(level, batch);
         TiledMapTileLayer groundLayer = getSingleLayer(level);
-        tileMovement = new TileMovement(groundLayer, Interpolation.smooth);
-
-        // Texture decodes an image file and loads it into GPU memory, it represents a native resource
-        blueTankTexture = new Texture("images/tank_blue.png");
-        // TextureRegion represents Texture portion, there may be many TextureRegion instances of the same Texture
-        tankGraphics = new TextureRegion(blueTankTexture);
-        tankRectangle = createBoundingRectangle(tankGraphics);
 
         tank = new Tank(
                 new GridPoint2(1, 1),
@@ -64,91 +52,41 @@ public class GameDesktopLauncher implements ApplicationListener {
                 BLUE_TANK_MOVEMENT_SPEED
         );
 
+        tankRenderer = new TankRenderer(groundLayer);
 
-        greenTreeTexture = new Texture("images/greenTree.png");
-        treeGraphics = new TextureRegion(greenTreeTexture);
         tree = new Tree(new GridPoint2(1, 3));
-        treeRectangle = createBoundingRectangle(treeGraphics);
-        moveRectangleAtTileCenter(groundLayer, treeRectangle, tree.coordinates());
+        treeRenderer = new TreeRenderer(groundLayer);
+
+        gameRenderer = new GameRenderer(
+                batch,
+                levelRenderer,
+                tankRenderer,
+                treeRenderer
+        );
 
         field = new Field(
                 groundLayer.getWidth(),
                 groundLayer.getHeight(),
                 tree
         );
+
+        inputHandler = new KeyboardInputHandler(
+                key -> Gdx.input.isKeyPressed(key)
+        );
+        gameController = new GameController(tank, field);
+
     }
 
     @Override
     public void render() {
         float deltaTime = Gdx.graphics.getDeltaTime();
-        update(deltaTime);
-        draw();
+
+        Set<GameAction> actions = inputHandler.readActions();
+        gameController.update(actions, deltaTime);
+
+        gameRenderer.draw(tank, tree);
     }
 
-
-    private void update(float deltaTime) {
-        Direction direction = readDirection();
-
-        if (direction != null && tank.hasFinishedCurrentMovement()) {
-            GridPoint2 nextCoordinates =
-                    tank.currentCoordinates().add(direction.getVector());
-
-            if (field.isFree(nextCoordinates)) {
-                tank.startMovementTo(nextCoordinates);
-            }
-
-            tank.face(direction);
-        }
-
-        tank.continueMovement(deltaTime);
-    }
-
-
-    private void draw() {
-        Gdx.gl.glClearColor(0f, 0f, 0.2f, 1f);
-        Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
-
-        tileMovement.moveRectangleBetweenTileCenters(
-                tankRectangle,
-                tank.currentCoordinates(),
-                tank.destinationCoordinates(),
-                tank.movementProgress()
-        );
-
-        levelRenderer.render();
-
-        batch.begin();
-
-        drawTextureRegionUnscaled(
-                batch,
-                tankGraphics,
-                tankRectangle,
-                tank.rotationAngle()
-        );
-
-        drawTextureRegionUnscaled(
-                batch,
-                treeGraphics,
-                treeRectangle,
-                0f
-        );
-
-        batch.end();
-    }
-
-    private Direction readDirection() {
-        if (Gdx.input.isKeyPressed(UP) || Gdx.input.isKeyPressed(W)) {
-            return Direction.UP;
-        } else if (Gdx.input.isKeyPressed(LEFT) || Gdx.input.isKeyPressed(A)) {
-            return Direction.LEFT;
-        } else if (Gdx.input.isKeyPressed(DOWN) || Gdx.input.isKeyPressed(S)) {
-            return Direction.DOWN;
-        } else if (Gdx.input.isKeyPressed(RIGHT) || Gdx.input.isKeyPressed(D)) {
-            return Direction.RIGHT;
-        }
-
-        return null;
-    }
 
     @Override
     public void resize(int width, int height) {
@@ -168,8 +106,8 @@ public class GameDesktopLauncher implements ApplicationListener {
     @Override
     public void dispose() {
         // dispose of all the native resources (classes which implement com.badlogic.gdx.utils.Disposable)
-        greenTreeTexture.dispose();
-        blueTankTexture.dispose();
+        tankRenderer.dispose();
+        treeRenderer.dispose();
         level.dispose();
         batch.dispose();
     }
