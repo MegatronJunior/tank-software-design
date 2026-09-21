@@ -70,7 +70,9 @@ public class GameDesktopLauncher implements ApplicationListener {
                 tree
         );
 
-        inputHandler = new KeyboardInputHandler();
+        inputHandler = new KeyboardInputHandler(
+                key -> Gdx.input.isKeyPressed(key)
+        );
         gameController = new GameController(tank, field);
 
     }
