@@ -16,8 +16,8 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Rectangle;
 import ru.mipt.bit.platformer.util.TileMovement;
+import java.util.Set;
 
-import static com.badlogic.gdx.Input.Keys.*;
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 
@@ -37,6 +37,9 @@ public class GameDesktopLauncher implements ApplicationListener {
     private Tank tank;
     private Tree tree;
     private Field field;
+
+    private KeyboardInputHandler inputHandler;
+    private GameController gameController;
 
     private Texture greenTreeTexture;
     private TextureRegion treeGraphics;
@@ -76,31 +79,20 @@ public class GameDesktopLauncher implements ApplicationListener {
                 groundLayer.getHeight(),
                 tree
         );
+
+        inputHandler = new KeyboardInputHandler();
+        gameController = new GameController(tank, field);
+
     }
 
     @Override
     public void render() {
         float deltaTime = Gdx.graphics.getDeltaTime();
-        update(deltaTime);
+
+        Set<GameAction> actions = inputHandler.readActions();
+        gameController.update(actions, deltaTime);
+
         draw();
-    }
-
-
-    private void update(float deltaTime) {
-        Direction direction = readDirection();
-
-        if (direction != null && tank.hasFinishedCurrentMovement()) {
-            GridPoint2 nextCoordinates =
-                    tank.currentCoordinates().add(direction.getVector());
-
-            if (field.isFree(nextCoordinates)) {
-                tank.startMovementTo(nextCoordinates);
-            }
-
-            tank.face(direction);
-        }
-
-        tank.continueMovement(deltaTime);
     }
 
 
@@ -134,20 +126,6 @@ public class GameDesktopLauncher implements ApplicationListener {
         );
 
         batch.end();
-    }
-
-    private Direction readDirection() {
-        if (Gdx.input.isKeyPressed(UP) || Gdx.input.isKeyPressed(W)) {
-            return Direction.UP;
-        } else if (Gdx.input.isKeyPressed(LEFT) || Gdx.input.isKeyPressed(A)) {
-            return Direction.LEFT;
-        } else if (Gdx.input.isKeyPressed(DOWN) || Gdx.input.isKeyPressed(S)) {
-            return Direction.DOWN;
-        } else if (Gdx.input.isKeyPressed(RIGHT) || Gdx.input.isKeyPressed(D)) {
-            return Direction.RIGHT;
-        }
-
-        return null;
     }
 
     @Override
