@@ -14,7 +14,7 @@ import static ru.mipt.bit.platformer.util.GdxGameUtils.moveRectangleAtTileCenter
 public class TreeRenderer implements Disposable {
 
     private final Texture texture;
-    private final TextureRegion graphics;
+    private final TextureRegion textureRegion;
     private final Rectangle rectangle;
     private final TiledMapTileLayer groundLayer;
 
@@ -23,8 +23,8 @@ public class TreeRenderer implements Disposable {
         this.groundLayer = groundLayer;
 
         texture = new Texture("images/greenTree.png");
-        graphics = new TextureRegion(texture);
-        rectangle = createBoundingRectangle(graphics);
+        textureRegion = new TextureRegion(texture);
+        rectangle = createBoundingRectangle(textureRegion);
     }
 
     public void draw(Batch batch, Tree tree) {
@@ -36,7 +36,7 @@ public class TreeRenderer implements Disposable {
 
         drawTextureRegionUnscaled(
                 batch,
-                graphics,
+                textureRegion,
                 rectangle,
                 0f
         );

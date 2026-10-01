@@ -15,14 +15,14 @@ import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled
 public class TankRenderer implements Disposable {
 
     private final Texture texture;
-    private final TextureRegion graphics;
+    private final TextureRegion textureRegion;
     private final Rectangle rectangle;
     private final TileMovement tileMovement;
 
     public TankRenderer(TiledMapTileLayer groundLayer) {
         texture = new Texture("images/tank_blue.png");
-        graphics = new TextureRegion(texture);
-        rectangle = createBoundingRectangle(graphics);
+        textureRegion = new TextureRegion(texture);
+        rectangle = createBoundingRectangle(textureRegion);
         tileMovement = new TileMovement(
                 groundLayer,
                 Interpolation.smooth
@@ -39,7 +39,7 @@ public class TankRenderer implements Disposable {
 
         drawTextureRegionUnscaled(
                 batch,
-                graphics,
+                textureRegion,
                 rectangle,
                 tank.rotationAngle()
         );

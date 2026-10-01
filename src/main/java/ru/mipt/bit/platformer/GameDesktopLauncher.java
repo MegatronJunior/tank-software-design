@@ -16,12 +16,11 @@ import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 
 public class GameDesktopLauncher implements ApplicationListener {
 
-    private static final float BLUE_TANK_MOVEMENT_SPEED = 0.4f;
+    private static final float TANK_MOVEMENT_SPEED = 0.4f;
 
     private Batch batch;
 
-    private TiledMap level;
-    private MapRenderer levelRenderer;
+    private TiledMap tiledMap;
 
     private Tank tank;
     private TankRenderer tankRenderer;
@@ -30,8 +29,6 @@ public class GameDesktopLauncher implements ApplicationListener {
     private TreeRenderer treeRenderer;
 
     private GameRenderer gameRenderer;
-
-    private Field field;
 
     private KeyboardInputHandler inputHandler;
     private GameController gameController;
@@ -42,14 +39,14 @@ public class GameDesktopLauncher implements ApplicationListener {
         batch = new SpriteBatch();
 
         // load level tiles
-        level = new TmxMapLoader().load("level.tmx");
-        levelRenderer = createSingleLayerMapRenderer(level, batch);
-        TiledMapTileLayer groundLayer = getSingleLayer(level);
+        tiledMap = new TmxMapLoader().load("level.tmx");
+        MapRenderer levelRenderer = createSingleLayerMapRenderer(tiledMap, batch);
+        TiledMapTileLayer groundLayer = getSingleLayer(tiledMap);
 
         tank = new Tank(
                 new GridPoint2(1, 1),
                 Direction.RIGHT,
-                BLUE_TANK_MOVEMENT_SPEED
+                TANK_MOVEMENT_SPEED
         );
 
         tankRenderer = new TankRenderer(groundLayer);
@@ -64,7 +61,7 @@ public class GameDesktopLauncher implements ApplicationListener {
                 treeRenderer
         );
 
-        field = new Field(
+        Field field = new Field(
                 groundLayer.getWidth(),
                 groundLayer.getHeight(),
                 tree
@@ -108,7 +105,7 @@ public class GameDesktopLauncher implements ApplicationListener {
         // dispose of all the native resources (classes which implement com.badlogic.gdx.utils.Disposable)
         tankRenderer.dispose();
         treeRenderer.dispose();
-        level.dispose();
+        tiledMap.dispose();
         batch.dispose();
     }
 

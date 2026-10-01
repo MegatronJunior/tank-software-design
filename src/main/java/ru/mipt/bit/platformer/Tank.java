@@ -32,9 +32,13 @@ public class Tank {
         this.direction = direction;
     }
 
-    public void startMovementTo(GridPoint2 destination) {
-        this.destinationCoordinates.set(destination);
-        this.movementProgress = 0f;
+    public void startMovement(Direction direction) {
+        destinationCoordinates
+                .set(coordinates)
+                .add(direction.getVector());
+
+        movementProgress = 0f;
+        face(direction);
     }
 
     public GridPoint2 currentCoordinates() {

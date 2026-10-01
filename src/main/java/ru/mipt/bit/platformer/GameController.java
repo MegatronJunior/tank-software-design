@@ -22,7 +22,9 @@ public class GameController {
                     tank.currentCoordinates().add(direction.getVector());
 
             if (field.isFree(nextCoordinates)) {
-                tank.startMovementTo(nextCoordinates);
+                tank.startMovement(direction);
+            } else {
+                tank.face(direction);
             }
 
             tank.face(direction);

@@ -30,14 +30,14 @@ public class TankTest {
     }
 
     @Test
-    public void startMovementChangesDestination() {
+    public void startMovementSetsNeighbouringDestination() {
         Tank tank = new Tank(
                 new GridPoint2(1, 1),
                 Direction.RIGHT,
                 0.4f
         );
 
-        tank.startMovementTo(new GridPoint2(2, 1));
+        tank.startMovement(Direction.RIGHT);
 
         assertEquals(
                 new GridPoint2(2, 1),
@@ -55,7 +55,7 @@ public class TankTest {
                 0.4f
         );
 
-        tank.startMovementTo(new GridPoint2(2, 1));
+        tank.startMovement(Direction.RIGHT);
 
         tank.continueMovement(0.4f);
 
