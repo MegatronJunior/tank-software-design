@@ -6,13 +6,23 @@ import java.util.Set;
 
 import static com.badlogic.gdx.Input.Keys.*;
 import static org.junit.jupiter.api.Assertions.*;
+import java.util.Map;
 
 public class KeyboardInputHandlerTest {
+    private Map<Integer, GameAction> keyBindings() {
+        return Map.of(
+                W, GameAction.MOVE_UP,
+                D, GameAction.MOVE_RIGHT
+        );
+    }
 
     @Test
     public void wProducesMoveUpAction() {
         KeyboardInputHandler inputHandler =
-                new KeyboardInputHandler(key -> key == W);
+                new KeyboardInputHandler(
+                        key -> key == W,
+                        keyBindings()
+                );
 
         Set<GameAction> actions = inputHandler.readActions();
 
@@ -22,7 +32,10 @@ public class KeyboardInputHandlerTest {
     @Test
     public void noPressedKeysProduceNoActions() {
         KeyboardInputHandler inputHandler =
-                new KeyboardInputHandler(key -> false);
+                new KeyboardInputHandler(
+                        key -> false,
+                        keyBindings()
+                );
 
         Set<GameAction> actions = inputHandler.readActions();
 
@@ -33,7 +46,8 @@ public class KeyboardInputHandlerTest {
     public void multiplePressedKeysProduceMultipleActions() {
         KeyboardInputHandler inputHandler =
                 new KeyboardInputHandler(
-                        key -> key == W || key == D
+                        key -> key == W || key == D,
+                        keyBindings()
                 );
 
         Set<GameAction> actions = inputHandler.readActions();
@@ -41,5 +55,20 @@ public class KeyboardInputHandlerTest {
         assertTrue(actions.contains(GameAction.MOVE_UP));
         assertTrue(actions.contains(GameAction.MOVE_RIGHT));
         assertEquals(2, actions.size());
+    }
+
+    @Test
+    public void customKeyBindingProducesConfiguredAction() {
+        KeyboardInputHandler inputHandler =
+                new KeyboardInputHandler(
+                        key -> key == SPACE,
+                        Map.of(
+                                SPACE, GameAction.MOVE_UP
+                        )
+                );
+
+        Set<GameAction> actions = inputHandler.readActions();
+
+        assertTrue(actions.contains(GameAction.MOVE_UP));
     }
 }

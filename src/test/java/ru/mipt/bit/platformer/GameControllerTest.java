@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import java.util.EnumSet;
 
 import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+
 
 public class GameControllerTest {
 
@@ -18,7 +20,7 @@ public class GameControllerTest {
         );
 
         Tree tree = new Tree(new GridPoint2(5, 5));
-        Field field = new Field(10, 8, tree);
+        Field field = new Field(10, 8, List.of(tree));
 
         GameController controller = new GameController(tank, field);
 
@@ -45,7 +47,7 @@ public class GameControllerTest {
         );
 
         Tree tree = new Tree(new GridPoint2(1, 2));
-        Field field = new Field(10, 8, tree);
+        Field field = new Field(10, 8, List.of(tree));
 
         GameController controller = new GameController(tank, field);
 
@@ -72,7 +74,7 @@ public class GameControllerTest {
         );
 
         Tree tree = new Tree(new GridPoint2(5, 5));
-        Field field = new Field(10, 8, tree);
+        Field field = new Field(10, 8, List.of(tree));
 
         GameController controller = new GameController(tank, field);
 

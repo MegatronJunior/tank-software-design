@@ -26,8 +26,6 @@ public class GameController {
             } else {
                 tank.face(direction);
             }
-
-            tank.face(direction);
         }
 
         tank.continueMovement(deltaTime);

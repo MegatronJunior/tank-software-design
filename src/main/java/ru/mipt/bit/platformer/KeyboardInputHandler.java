@@ -3,34 +3,28 @@ package ru.mipt.bit.platformer;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.IntPredicate;
-
-import static com.badlogic.gdx.Input.Keys.*;
+import java.util.Map;
 
 public class KeyboardInputHandler {
 
     private final IntPredicate isKeyPressed;
+    private final Map<Integer, GameAction> keyBindings;
 
-    public KeyboardInputHandler(IntPredicate isKeyPressed) {
+    public KeyboardInputHandler(
+            IntPredicate isKeyPressed,
+            Map<Integer, GameAction> keyBindings
+    ) {
         this.isKeyPressed = isKeyPressed;
+        this.keyBindings = Map.copyOf(keyBindings);
     }
 
     public Set<GameAction> readActions() {
         Set<GameAction> actions = EnumSet.noneOf(GameAction.class);
 
-        if (isKeyPressed.test(UP) || isKeyPressed.test(W)) {
-            actions.add(GameAction.MOVE_UP);
-        }
-
-        if (isKeyPressed.test(DOWN) || isKeyPressed.test(S)) {
-            actions.add(GameAction.MOVE_DOWN);
-        }
-
-        if (isKeyPressed.test(LEFT) || isKeyPressed.test(A)) {
-            actions.add(GameAction.MOVE_LEFT);
-        }
-
-        if (isKeyPressed.test(RIGHT) || isKeyPressed.test(D)) {
-            actions.add(GameAction.MOVE_RIGHT);
+        for (Map.Entry<Integer, GameAction> binding : keyBindings.entrySet()) {
+            if (isKeyPressed.test(binding.getKey())) {
+                actions.add(binding.getValue());
+            }
         }
 
         return actions;

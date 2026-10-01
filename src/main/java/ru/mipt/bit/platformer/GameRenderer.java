@@ -5,27 +5,25 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.maps.MapRenderer;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
+import java.util.List;
 
 public class GameRenderer {
 
     private final Batch batch;
     private final MapRenderer levelRenderer;
-    private final TankRenderer tankRenderer;
-    private final TreeRenderer treeRenderer;
+    private final List<GameObjectRenderer> objectRenderers;
 
     public GameRenderer(
             Batch batch,
             MapRenderer levelRenderer,
-            TankRenderer tankRenderer,
-            TreeRenderer treeRenderer
+            List<GameObjectRenderer> objectRenderers
     ) {
         this.batch = batch;
         this.levelRenderer = levelRenderer;
-        this.tankRenderer = tankRenderer;
-        this.treeRenderer = treeRenderer;
+        this.objectRenderers = List.copyOf(objectRenderers);
     }
 
-    public void draw(Tank tank, Tree tree) {
+    public void draw() {
         Gdx.gl.glClearColor(0f, 0f, 0.2f, 1f);
         Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
 
@@ -33,8 +31,9 @@ public class GameRenderer {
 
         batch.begin();
 
-        tankRenderer.draw(batch, tank);
-        treeRenderer.draw(batch, tree);
+        for (GameObjectRenderer renderer : objectRenderers) {
+            renderer.draw(batch);
+        }
 
         batch.end();
     }
