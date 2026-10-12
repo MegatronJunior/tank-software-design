@@ -14,10 +14,21 @@ import com.badlogic.gdx.math.GridPoint2;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.Random;
+
 
 public class GameDesktopLauncher implements ApplicationListener {
 
     private static final float TANK_MOVEMENT_SPEED = 0.4f;
+
+
+    private final boolean useFileLevel;
+
+    public GameDesktopLauncher(boolean useFileLevel) {
+        this.useFileLevel = useFileLevel;
+    }
+
 
     private Batch batch;
 
@@ -38,26 +49,38 @@ public class GameDesktopLauncher implements ApplicationListener {
         MapRenderer levelRenderer = createSingleLayerMapRenderer(tiledMap, batch);
         TiledMapTileLayer groundLayer = getSingleLayer(tiledMap);
 
+        LevelProvider levelProvider;
+
+        if (useFileLevel) {
+            levelProvider = new FileLevelProvider(
+                    Gdx.files.internal("levels/level1.txt")
+            );
+        } else {
+            levelProvider = new RandomLevelProvider(
+                    new Random(), 10
+            );
+        }
+
+        LevelData level = levelProvider.createLevel(
+                groundLayer.getWidth(),
+                groundLayer.getHeight()
+        );
+
         Tank tank = new Tank(
-                new GridPoint2(1, 1),
+                level.tankCoordinates(),
                 Direction.RIGHT,
                 TANK_MOVEMENT_SPEED
         );
-        Tree tree = new Tree(new GridPoint2(1, 3));
 
-        TankRenderer tankRenderer = new TankRenderer(
-                groundLayer,
-                tank
+        List<GameObjectRenderer> objectRenderers =
+                new ArrayList<>();
+
+        objectRenderers.add(
+                new TankRenderer(groundLayer, tank)
         );
 
-        TreeRenderer treeRenderer = new TreeRenderer(
-                groundLayer,
-                tree
-        );
-
-        List<GameObjectRenderer> objectRenderers = List.of(
-                tankRenderer,
-                treeRenderer
+        objectRenderers.add(
+                new TreeRenderer(groundLayer, level.trees())
         );
 
         gameRenderer = new GameRenderer(
@@ -66,10 +89,13 @@ public class GameDesktopLauncher implements ApplicationListener {
                 objectRenderers
         );
 
+        List<Obstacle> obstacles =
+                new ArrayList<>(level.trees());
+
         Field field = new Field(
-                groundLayer.getWidth(),
-                groundLayer.getHeight(),
-                List.of(tree)
+                level.width(),
+                level.height(),
+                obstacles
         );
 
         Map<Direction, GameAction> movementActions =
@@ -142,6 +168,14 @@ public class GameDesktopLauncher implements ApplicationListener {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         // level width: 10 tiles x 128px, height: 8 tiles x 128px
         config.setWindowedMode(1280, 1024);
-        new Lwjgl3Application(new GameDesktopLauncher(), config);
+
+        boolean useFileLevel =
+                args.length > 0 && args[0].equals("file");
+
+        new Lwjgl3Application(
+                new GameDesktopLauncher(useFileLevel),
+                config
+        );
+
     }
 }
