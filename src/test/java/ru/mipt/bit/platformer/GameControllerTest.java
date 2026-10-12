@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import java.util.EnumSet;
 
 import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+
 
 public class GameControllerTest {
 
@@ -18,12 +20,15 @@ public class GameControllerTest {
         );
 
         Tree tree = new Tree(new GridPoint2(5, 5));
-        Field field = new Field(10, 8, tree);
+        Field field = new Field(10, 8, List.of(tree));
 
-        GameController controller = new GameController(tank, field);
+        GameController controller = new GameController(tank);
+
+        GameAction moveUp =
+                new MoveAction(tank, field, Direction.UP);
 
         controller.update(
-                EnumSet.of(GameAction.MOVE_UP),
+                List.of(moveUp),
                 0f
         );
 
@@ -45,15 +50,17 @@ public class GameControllerTest {
         );
 
         Tree tree = new Tree(new GridPoint2(1, 2));
-        Field field = new Field(10, 8, tree);
+        Field field = new Field(10, 8, List.of(tree));
 
-        GameController controller = new GameController(tank, field);
+        GameController controller = new GameController(tank);
+
+        GameAction moveUp =
+                new MoveAction(tank, field, Direction.UP);
 
         controller.update(
-                EnumSet.of(GameAction.MOVE_UP),
+                List.of(moveUp),
                 0f
         );
-
         assertEquals(
                 new GridPoint2(1, 1),
                 tank.destinationCoordinates()
@@ -72,12 +79,14 @@ public class GameControllerTest {
         );
 
         Tree tree = new Tree(new GridPoint2(5, 5));
-        Field field = new Field(10, 8, tree);
+        Field field = new Field(10, 8, List.of(tree));
 
-        GameController controller = new GameController(tank, field);
+        GameController controller = new GameController(tank);
+        GameAction moveLeft =
+                new MoveAction(tank, field, Direction.LEFT);
 
         controller.update(
-                EnumSet.of(GameAction.MOVE_LEFT),
+                List.of(moveLeft),
                 0f
         );
 

@@ -5,13 +5,13 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import java.util.List;
 public class FieldTest {
 
     @Test
     public void emptyCellInsideFieldIsFree() {
         Tree tree = new Tree(new GridPoint2(1, 3));
-        Field field = new Field(10, 8, tree);
+        Field field = new Field(10, 8, List.of(tree));
 
         assertTrue(field.isFree(new GridPoint2(2, 2)));
     }
@@ -19,7 +19,7 @@ public class FieldTest {
     @Test
     public void cellWithTreeIsNotFree() {
         Tree tree = new Tree(new GridPoint2(1, 3));
-        Field field = new Field(10, 8, tree);
+        Field field = new Field(10, 8, List.of(tree));
 
         assertFalse(field.isFree(new GridPoint2(1, 3)));
     }
@@ -27,7 +27,7 @@ public class FieldTest {
     @Test
     public void cellOutsideFieldIsNotFree() {
         Tree tree = new Tree(new GridPoint2(1, 3));
-        Field field = new Field(10, 8, tree);
+        Field field = new Field(10, 8, List.of(tree));
 
         assertFalse(field.isFree(new GridPoint2(-1, 0)));
     }
@@ -35,8 +35,22 @@ public class FieldTest {
     @Test
     public void cellAtFieldSizeIsOutside() {
         Tree tree = new Tree(new GridPoint2(1, 3));
-        Field field = new Field(10, 8, tree);
+        Field field = new Field(10, 8, List.of(tree));
 
         assertFalse(field.isFree(new GridPoint2(10, 8)));
+    }
+
+    @Test
+    public void cellWithSecondObstacleIsNotFree() {
+        Tree firstTree = new Tree(new GridPoint2(1, 3));
+        Tree secondTree = new Tree(new GridPoint2(4, 5));
+
+        Field field = new Field(
+                10,
+                8,
+                List.of(firstTree, secondTree)
+        );
+
+        assertFalse(field.isFree(new GridPoint2(4, 5)));
     }
 }

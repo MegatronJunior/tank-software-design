@@ -11,8 +11,9 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.GridPoint2;
-import java.util.Set;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
+import java.util.List;
+import java.util.Map;
 
 public class GameDesktopLauncher implements ApplicationListener {
 
@@ -21,14 +22,8 @@ public class GameDesktopLauncher implements ApplicationListener {
     private Batch batch;
 
     private TiledMap tiledMap;
-
-    private Tank tank;
-    private TankRenderer tankRenderer;
-
-    private Tree tree;
-    private TreeRenderer treeRenderer;
-
     private GameRenderer gameRenderer;
+
 
     private KeyboardInputHandler inputHandler;
     private GameController gameController;
@@ -43,45 +38,81 @@ public class GameDesktopLauncher implements ApplicationListener {
         MapRenderer levelRenderer = createSingleLayerMapRenderer(tiledMap, batch);
         TiledMapTileLayer groundLayer = getSingleLayer(tiledMap);
 
-        tank = new Tank(
+        Tank tank = new Tank(
                 new GridPoint2(1, 1),
                 Direction.RIGHT,
                 TANK_MOVEMENT_SPEED
         );
+        Tree tree = new Tree(new GridPoint2(1, 3));
 
-        tankRenderer = new TankRenderer(groundLayer);
+        TankRenderer tankRenderer = new TankRenderer(
+                groundLayer,
+                tank
+        );
 
-        tree = new Tree(new GridPoint2(1, 3));
-        treeRenderer = new TreeRenderer(groundLayer);
+        TreeRenderer treeRenderer = new TreeRenderer(
+                groundLayer,
+                tree
+        );
+
+        List<GameObjectRenderer> objectRenderers = List.of(
+                tankRenderer,
+                treeRenderer
+        );
 
         gameRenderer = new GameRenderer(
                 batch,
                 levelRenderer,
-                tankRenderer,
-                treeRenderer
+                objectRenderers
         );
 
         Field field = new Field(
                 groundLayer.getWidth(),
                 groundLayer.getHeight(),
-                tree
+                List.of(tree)
         );
+
+        Map<Direction, GameAction> movementActions =
+                createMovementActions(tank, field);
+
+
 
         inputHandler = new KeyboardInputHandler(
-                key -> Gdx.input.isKeyPressed(key)
+                key -> Gdx.input.isKeyPressed(key),
+                DefaultKeyBindings.create(movementActions)
         );
-        gameController = new GameController(tank, field);
 
+        gameController = new GameController(tank);
+
+    }
+
+    private Map<Direction, GameAction> createMovementActions(
+            Tank tank,
+            Field field
+    ) {
+        return Map.of(
+                Direction.UP,
+                new MoveAction(tank, field, Direction.UP),
+
+                Direction.DOWN,
+                new MoveAction(tank, field, Direction.DOWN),
+
+                Direction.LEFT,
+                new MoveAction(tank, field, Direction.LEFT),
+
+                Direction.RIGHT,
+                new MoveAction(tank, field, Direction.RIGHT)
+        );
     }
 
     @Override
     public void render() {
         float deltaTime = Gdx.graphics.getDeltaTime();
 
-        Set<GameAction> actions = inputHandler.readActions();
+        List<GameAction> actions = inputHandler.readActions();
         gameController.update(actions, deltaTime);
 
-        gameRenderer.draw(tank, tree);
+        gameRenderer.draw();
     }
 
 
@@ -102,9 +133,7 @@ public class GameDesktopLauncher implements ApplicationListener {
 
     @Override
     public void dispose() {
-        // dispose of all the native resources (classes which implement com.badlogic.gdx.utils.Disposable)
-        tankRenderer.dispose();
-        treeRenderer.dispose();
+        gameRenderer.dispose();
         tiledMap.dispose();
         batch.dispose();
     }
