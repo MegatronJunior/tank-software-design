@@ -13,7 +13,7 @@ public class Field {
     public Field(int width, int height, List<Obstacle> obstacles) {
         this.width = width;
         this.height = height;
-        this.obstacles = obstacles;
+        this.obstacles = List.copyOf(obstacles);
     }
 
     public boolean isFree(GridPoint2 coordinates) {

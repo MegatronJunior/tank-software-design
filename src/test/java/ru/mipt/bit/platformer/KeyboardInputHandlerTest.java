@@ -2,31 +2,38 @@ package ru.mipt.bit.platformer;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Set;
+import java.util.List;
+import java.util.Map;
 
 import static com.badlogic.gdx.Input.Keys.*;
 import static org.junit.jupiter.api.Assertions.*;
-import java.util.Map;
 
 public class KeyboardInputHandlerTest {
-    private Map<Integer, GameAction> keyBindings() {
-        return Map.of(
-                W, GameAction.MOVE_UP,
-                D, GameAction.MOVE_RIGHT
+
+    private final GameAction moveUp = () -> {};
+    private final GameAction moveRight = () -> {};
+
+    private List<Map.Entry<Integer, GameAction>> keyBindings() {
+        return List.of(
+                Map.entry(W, moveUp),
+                Map.entry(D, moveRight)
         );
     }
 
     @Test
-    public void wProducesMoveUpAction() {
+    public void wProducesConfiguredAction() {
         KeyboardInputHandler inputHandler =
                 new KeyboardInputHandler(
                         key -> key == W,
                         keyBindings()
                 );
 
-        Set<GameAction> actions = inputHandler.readActions();
+        List<GameAction> actions = inputHandler.readActions();
 
-        assertTrue(actions.contains(GameAction.MOVE_UP));
+        assertEquals(
+                List.of(moveUp),
+                actions
+        );
     }
 
     @Test
@@ -37,7 +44,7 @@ public class KeyboardInputHandlerTest {
                         keyBindings()
                 );
 
-        Set<GameAction> actions = inputHandler.readActions();
+        List<GameAction> actions = inputHandler.readActions();
 
         assertTrue(actions.isEmpty());
     }
@@ -50,25 +57,50 @@ public class KeyboardInputHandlerTest {
                         keyBindings()
                 );
 
-        Set<GameAction> actions = inputHandler.readActions();
+        List<GameAction> actions = inputHandler.readActions();
 
-        assertTrue(actions.contains(GameAction.MOVE_UP));
-        assertTrue(actions.contains(GameAction.MOVE_RIGHT));
-        assertEquals(2, actions.size());
+        assertEquals(
+                List.of(moveUp, moveRight),
+                actions
+        );
     }
 
     @Test
     public void customKeyBindingProducesConfiguredAction() {
+        GameAction customAction = () -> {};
+
         KeyboardInputHandler inputHandler =
                 new KeyboardInputHandler(
                         key -> key == SPACE,
-                        Map.of(
-                                SPACE, GameAction.MOVE_UP
+                        List.of(
+                                Map.entry(SPACE, customAction)
                         )
                 );
 
-        Set<GameAction> actions = inputHandler.readActions();
+        List<GameAction> actions = inputHandler.readActions();
 
-        assertTrue(actions.contains(GameAction.MOVE_UP));
+        assertEquals(
+                List.of(customAction),
+                actions
+        );
+    }
+
+    @Test
+    public void twoKeysForSameActionProduceOneAction() {
+        KeyboardInputHandler inputHandler =
+                new KeyboardInputHandler(
+                        key -> key == W || key == UP,
+                        List.of(
+                                Map.entry(W, moveUp),
+                                Map.entry(UP, moveUp)
+                        )
+                );
+
+        List<GameAction> actions = inputHandler.readActions();
+
+        assertEquals(
+                List.of(moveUp),
+                actions
+        );
     }
 }

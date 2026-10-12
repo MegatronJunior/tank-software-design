@@ -11,12 +11,9 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.GridPoint2;
-import java.util.Set;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 import java.util.List;
 import java.util.Map;
-import static com.badlogic.gdx.Input.Keys.*;
-import java.util.List;
 
 public class GameDesktopLauncher implements ApplicationListener {
 
@@ -25,11 +22,6 @@ public class GameDesktopLauncher implements ApplicationListener {
     private Batch batch;
 
     private TiledMap tiledMap;
-
-    private Tank tank;
-    private Tree tree;
-    private List<GameObjectRenderer> objectRenderers;
-
     private GameRenderer gameRenderer;
 
 
@@ -46,12 +38,12 @@ public class GameDesktopLauncher implements ApplicationListener {
         MapRenderer levelRenderer = createSingleLayerMapRenderer(tiledMap, batch);
         TiledMapTileLayer groundLayer = getSingleLayer(tiledMap);
 
-        tank = new Tank(
+        Tank tank = new Tank(
                 new GridPoint2(1, 1),
                 Direction.RIGHT,
                 TANK_MOVEMENT_SPEED
         );
-        tree = new Tree(new GridPoint2(1, 3));
+        Tree tree = new Tree(new GridPoint2(1, 3));
 
         TankRenderer tankRenderer = new TankRenderer(
                 groundLayer,
@@ -63,7 +55,7 @@ public class GameDesktopLauncher implements ApplicationListener {
                 tree
         );
 
-        objectRenderers = List.of(
+        List<GameObjectRenderer> objectRenderers = List.of(
                 tankRenderer,
                 treeRenderer
         );
@@ -71,10 +63,7 @@ public class GameDesktopLauncher implements ApplicationListener {
         gameRenderer = new GameRenderer(
                 batch,
                 levelRenderer,
-                List.of(
-                        tankRenderer,
-                        treeRenderer
-                )
+                objectRenderers
         );
 
         Field field = new Field(
@@ -83,19 +72,44 @@ public class GameDesktopLauncher implements ApplicationListener {
                 List.of(tree)
         );
 
+        Map<Direction, GameAction> movementActions =
+                createMovementActions(tank, field);
+
+
+
         inputHandler = new KeyboardInputHandler(
                 key -> Gdx.input.isKeyPressed(key),
-                createKeyBindings()
+                DefaultKeyBindings.create(movementActions)
         );
-        gameController = new GameController(tank, field);
 
+        gameController = new GameController(tank);
+
+    }
+
+    private Map<Direction, GameAction> createMovementActions(
+            Tank tank,
+            Field field
+    ) {
+        return Map.of(
+                Direction.UP,
+                new MoveAction(tank, field, Direction.UP),
+
+                Direction.DOWN,
+                new MoveAction(tank, field, Direction.DOWN),
+
+                Direction.LEFT,
+                new MoveAction(tank, field, Direction.LEFT),
+
+                Direction.RIGHT,
+                new MoveAction(tank, field, Direction.RIGHT)
+        );
     }
 
     @Override
     public void render() {
         float deltaTime = Gdx.graphics.getDeltaTime();
 
-        Set<GameAction> actions = inputHandler.readActions();
+        List<GameAction> actions = inputHandler.readActions();
         gameController.update(actions, deltaTime);
 
         gameRenderer.draw();
@@ -119,10 +133,7 @@ public class GameDesktopLauncher implements ApplicationListener {
 
     @Override
     public void dispose() {
-        // dispose of all the native resources (classes which implement com.badlogic.gdx.utils.Disposable)
-        for (GameObjectRenderer renderer : objectRenderers) {
-            renderer.dispose();
-        }
+        gameRenderer.dispose();
         tiledMap.dispose();
         batch.dispose();
     }
@@ -132,18 +143,5 @@ public class GameDesktopLauncher implements ApplicationListener {
         // level width: 10 tiles x 128px, height: 8 tiles x 128px
         config.setWindowedMode(1280, 1024);
         new Lwjgl3Application(new GameDesktopLauncher(), config);
-    }
-
-    private Map<Integer, GameAction> createKeyBindings() {
-        return Map.of(
-                UP, GameAction.MOVE_UP,
-                W, GameAction.MOVE_UP,
-                DOWN, GameAction.MOVE_DOWN,
-                S, GameAction.MOVE_DOWN,
-                LEFT, GameAction.MOVE_LEFT,
-                A, GameAction.MOVE_LEFT,
-                RIGHT, GameAction.MOVE_RIGHT,
-                D, GameAction.MOVE_RIGHT
-        );
     }
 }

@@ -6,8 +6,10 @@ import com.badlogic.gdx.maps.MapRenderer;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 import java.util.List;
+import com.badlogic.gdx.utils.Disposable;
 
-public class GameRenderer {
+
+public class GameRenderer implements Disposable {
 
     private final Batch batch;
     private final MapRenderer levelRenderer;
@@ -36,5 +38,12 @@ public class GameRenderer {
         }
 
         batch.end();
+    }
+
+    @Override
+    public void dispose() {
+        for (GameObjectRenderer renderer : objectRenderers) {
+            renderer.dispose();
+        }
     }
 }
