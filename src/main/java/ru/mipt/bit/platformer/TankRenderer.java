@@ -1,3 +1,4 @@
+
 package ru.mipt.bit.platformer;
 
 import com.badlogic.gdx.graphics.Texture;
@@ -8,9 +9,10 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Rectangle;
 import ru.mipt.bit.platformer.util.TileMovement;
 
+import java.util.List;
+
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled;
-
 
 public class TankRenderer implements GameObjectRenderer {
 
@@ -18,13 +20,13 @@ public class TankRenderer implements GameObjectRenderer {
     private final TextureRegion textureRegion;
     private final Rectangle rectangle;
     private final TileMovement tileMovement;
-    private final Tank tank;
+    private final List<Tank> tanks;
 
     public TankRenderer(
             TiledMapTileLayer groundLayer,
-            Tank tank
+            List<Tank> tanks
     ) {
-        this.tank = tank;
+        this.tanks = List.copyOf(tanks);
 
         texture = new Texture("images/tank_blue.png");
         textureRegion = new TextureRegion(texture);
@@ -37,19 +39,21 @@ public class TankRenderer implements GameObjectRenderer {
 
     @Override
     public void draw(Batch batch) {
-        tileMovement.moveRectangleBetweenTileCenters(
-                rectangle,
-                tank.currentCoordinates(),
-                tank.destinationCoordinates(),
-                tank.movementProgress()
-        );
+        for (Tank tank : tanks) {
+            tileMovement.moveRectangleBetweenTileCenters(
+                    rectangle,
+                    tank.currentCoordinates(),
+                    tank.destinationCoordinates(),
+                    tank.movementProgress()
+            );
 
-        drawTextureRegionUnscaled(
-                batch,
-                textureRegion,
-                rectangle,
-                tank.rotationAngle()
-        );
+            drawTextureRegionUnscaled(
+                    batch,
+                    textureRegion,
+                    rectangle,
+                    tank.rotationAngle()
+            );
+        }
     }
 
     @Override

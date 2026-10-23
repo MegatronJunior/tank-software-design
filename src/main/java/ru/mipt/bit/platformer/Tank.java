@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import static com.badlogic.gdx.math.MathUtils.isEqual;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.continueProgress;
 
-public class Tank {
+public class Tank implements Obstacle {
 
     private final GridPoint2 coordinates;
     private final GridPoint2 destinationCoordinates;
@@ -33,6 +33,10 @@ public class Tank {
     }
 
     public void startMovement(Direction direction) {
+        if (!hasFinishedCurrentMovement()) {
+            return;
+        }
+
         destinationCoordinates
                 .set(coordinates)
                 .add(direction.getVector());
@@ -68,6 +72,12 @@ public class Tank {
 
     public float rotationAngle() {
         return direction.getAngle();
+    }
+
+    @Override
+    public boolean isHere(GridPoint2 coordinates) {
+        return this.coordinates.equals(coordinates)
+                || destinationCoordinates.equals(coordinates);
     }
 
 }

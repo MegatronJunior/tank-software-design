@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.Random;
-
+import java.util.EnumMap;
 
 public class GameDesktopLauncher implements ApplicationListener {
 
@@ -35,8 +35,6 @@ public class GameDesktopLauncher implements ApplicationListener {
     private TiledMap tiledMap;
     private GameRenderer gameRenderer;
 
-
-    private KeyboardInputHandler inputHandler;
     private GameController gameController;
 
 
@@ -66,17 +64,32 @@ public class GameDesktopLauncher implements ApplicationListener {
                 groundLayer.getHeight()
         );
 
-        Tank tank = new Tank(
+
+        Tank playerTank = new Tank(
                 level.tankCoordinates(),
                 Direction.RIGHT,
                 TANK_MOVEMENT_SPEED
         );
 
+        RandomTankSpawner tankSpawner =
+                new RandomTankSpawner(new Random());
+
+        List<Tank> aiTanks = tankSpawner.spawn(
+                level,
+                3,
+                TANK_MOVEMENT_SPEED
+        );
+
+        List<Tank> tanks = new ArrayList<>();
+        tanks.add(playerTank);
+        tanks.addAll(aiTanks);
+
+
         List<GameObjectRenderer> objectRenderers =
                 new ArrayList<>();
 
         objectRenderers.add(
-                new TankRenderer(groundLayer, tank)
+                new TankRenderer(groundLayer, tanks)
         );
 
         objectRenderers.add(
@@ -92,51 +105,85 @@ public class GameDesktopLauncher implements ApplicationListener {
         List<Obstacle> obstacles =
                 new ArrayList<>(level.trees());
 
+        obstacles.addAll(tanks);
+
         Field field = new Field(
                 level.width(),
                 level.height(),
                 obstacles
         );
 
-        Map<Direction, GameAction> movementActions =
-                createMovementActions(tank, field);
+        List<TankControlStrategy> controlStrategies =
+                createControlStrategies(playerTank, aiTanks, field);
 
-
-
-        inputHandler = new KeyboardInputHandler(
-                key -> Gdx.input.isKeyPressed(key),
-                DefaultKeyBindings.create(movementActions)
+        gameController = new GameController(
+                tanks,
+                controlStrategies
         );
 
-        gameController = new GameController(tank);
-
     }
+
+
+    private List<TankControlStrategy> createControlStrategies(
+            Tank playerTank,
+            List<Tank> aiTanks,
+            Field field
+    ) {
+        Map<Direction, GameAction> playerMovementActions =
+                createMovementActions(playerTank, field);
+
+        KeyboardInputHandler keyboardControl =
+                new KeyboardInputHandler(
+                        key -> Gdx.input.isKeyPressed(key),
+                        DefaultKeyBindings.create(playerMovementActions)
+                );
+
+        List<TankControlStrategy> strategies =
+                new ArrayList<>();
+
+        strategies.add(keyboardControl);
+
+        for (Tank aiTank : aiTanks) {
+            Map<Direction, GameAction> aiMovementActions =
+                    createMovementActions(aiTank, field);
+
+            strategies.add(
+                    new RandomTankControlStrategy(
+                            aiTank,
+                            new Random(),
+                            aiMovementActions
+                    )
+            );
+        }
+
+        return List.copyOf(strategies);
+    }
+
+
 
     private Map<Direction, GameAction> createMovementActions(
             Tank tank,
             Field field
     ) {
-        return Map.of(
-                Direction.UP,
-                new MoveAction(tank, field, Direction.UP),
+        Map<Direction, GameAction> actions =
+                new EnumMap<>(Direction.class);
 
-                Direction.DOWN,
-                new MoveAction(tank, field, Direction.DOWN),
+        for (Direction direction : Direction.values()) {
+            actions.put(
+                    direction,
+                    new MoveAction(tank, field, direction)
+            );
+        }
 
-                Direction.LEFT,
-                new MoveAction(tank, field, Direction.LEFT),
-
-                Direction.RIGHT,
-                new MoveAction(tank, field, Direction.RIGHT)
-        );
+        return Map.copyOf(actions);
     }
+
 
     @Override
     public void render() {
         float deltaTime = Gdx.graphics.getDeltaTime();
 
-        List<GameAction> actions = inputHandler.readActions();
-        gameController.update(actions, deltaTime);
+        gameController.update(deltaTime);
 
         gameRenderer.draw();
     }

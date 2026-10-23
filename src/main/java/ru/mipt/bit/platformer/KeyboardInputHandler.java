@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.IntPredicate;
 
-public class KeyboardInputHandler {
+public class KeyboardInputHandler implements TankControlStrategy{
 
     private final IntPredicate isKeyPressed;
     private final List<Map.Entry<Integer, GameAction>> keyBindings;
@@ -30,5 +30,10 @@ public class KeyboardInputHandler {
         }
 
         return new ArrayList<>(actions);
+    }
+
+    @Override
+    public List<GameAction> selectActions() {
+        return readActions();
     }
 }

@@ -95,4 +95,24 @@ public class TankTest {
                 tank.currentCoordinates()
         );
     }
+
+    @Test
+    void cannotStartNewMovementWhileAlreadyMoving() {
+        Tank tank = new Tank(
+                new GridPoint2(1, 1),
+                Direction.RIGHT,
+                0.4f
+        );
+
+        tank.startMovement(Direction.RIGHT);
+        tank.startMovement(Direction.UP);
+
+        assertEquals(
+                new GridPoint2(2, 1),
+                tank.destinationCoordinates()
+        );
+
+        assertFalse(tank.hasFinishedCurrentMovement());
+        assertEquals(0f, tank.rotationAngle());
+    }
 }

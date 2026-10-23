@@ -1,20 +1,49 @@
 package ru.mipt.bit.platformer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameController {
 
-    private final Tank tank;
+    private final List<Tank> tanks;
+    private final List<TankControlStrategy> controlStrategies;
 
     public GameController(Tank tank) {
-        this.tank = tank;
+        this(List.of(tank));
     }
 
-    public void update(List<GameAction> actions, float deltaTime) {
+    public GameController(List<Tank> tanks) {
+        this(tanks, List.of());
+    }
+
+    public GameController(
+            List<Tank> tanks,
+            List<TankControlStrategy> controlStrategies
+    ) {
+        this.tanks = List.copyOf(tanks);
+        this.controlStrategies = List.copyOf(controlStrategies);
+    }
+
+    public void update(float deltaTime) {
+        List<GameAction> actions = new ArrayList<>();
+
+        for (TankControlStrategy strategy : controlStrategies) {
+            actions.addAll(strategy.selectActions());
+        }
+
+        update(actions, deltaTime);
+    }
+
+    public void update(
+            List<GameAction> actions,
+            float deltaTime
+    ) {
         for (GameAction action : actions) {
             action.execute();
         }
 
-        tank.continueMovement(deltaTime);
+        for (Tank tank : tanks) {
+            tank.continueMovement(deltaTime);
+        }
     }
 }
