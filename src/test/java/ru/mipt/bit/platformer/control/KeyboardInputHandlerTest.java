@@ -1,7 +1,10 @@
 package ru.mipt.bit.platformer.control;
 
 import org.junit.jupiter.api.Test;
-import ru.mipt.bit.platformer.comand.GameAction;
+import ru.mipt.bit.platformer.command.GameAction;
+
+import java.util.EnumMap;
+import ru.mipt.bit.platformer.model.Direction;
 
 import java.util.List;
 import java.util.Map;
@@ -104,4 +107,32 @@ public class KeyboardInputHandlerTest {
                 actions
         );
     }
+
+
+    @Test
+    void spaceTriggersShootingAction() {
+        GameAction shootAction = () -> {};
+
+        Map<Direction, GameAction> movementActions =
+                new EnumMap<>(Direction.class);
+
+        for (Direction direction : Direction.values()) {
+            movementActions.put(direction, () -> {});
+        }
+
+        KeyboardInputHandler inputHandler =
+                new KeyboardInputHandler(
+                        key -> key == SPACE,
+                        DefaultKeyBindings.create(
+                                movementActions,
+                                shootAction
+                        )
+                );
+
+        assertEquals(
+                List.of(shootAction),
+                inputHandler.selectActions()
+        );
+    }
+
 }

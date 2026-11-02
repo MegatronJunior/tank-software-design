@@ -1,4 +1,4 @@
-package ru.mipt.bit.platformer.comand;
+package ru.mipt.bit.platformer.command;
 
 import com.badlogic.gdx.math.GridPoint2;
 import ru.mipt.bit.platformer.model.Direction;
@@ -23,6 +23,10 @@ public class MoveAction implements GameAction {
 
     @Override
     public void execute() {
+        if (tank.isDestroyed()) {
+            return;
+        }
+
         if (!tank.hasFinishedCurrentMovement()) {
             return;
         }

@@ -13,6 +13,9 @@ import java.util.List;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.moveRectangleAtTileCenter;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import ru.mipt.bit.platformer.model.GameObject;
 
 public class TreeRenderer implements GameObjectRenderer {
 
@@ -20,14 +23,10 @@ public class TreeRenderer implements GameObjectRenderer {
     private final TextureRegion textureRegion;
     private final Rectangle rectangle;
     private final TiledMapTileLayer groundLayer;
-    private final List<Tree> trees;
+    private final Set<Tree> trees = new LinkedHashSet<>();
 
-    public TreeRenderer(
-            TiledMapTileLayer groundLayer,
-            List<Tree> trees
-    ) {
+    public TreeRenderer(TiledMapTileLayer groundLayer) {
         this.groundLayer = groundLayer;
-        this.trees = List.copyOf(trees);
 
         texture = new Texture("images/greenTree.png");
         textureRegion = new TextureRegion(texture);
@@ -55,5 +54,19 @@ public class TreeRenderer implements GameObjectRenderer {
     @Override
     public void dispose() {
         texture.dispose();
+    }
+
+    @Override
+    public void onObjectAdded(GameObject object) {
+        if (object instanceof Tree) {
+            trees.add((Tree) object);
+        }
+    }
+
+    @Override
+    public void onObjectRemoved(GameObject object) {
+        if (object instanceof Tree ) {
+            trees.remove((Tree) object);
+        }
     }
 }

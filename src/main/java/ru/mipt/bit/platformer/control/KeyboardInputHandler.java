@@ -1,6 +1,6 @@
 package ru.mipt.bit.platformer.control;
 
-import ru.mipt.bit.platformer.comand.GameAction;
+import ru.mipt.bit.platformer.command.GameAction;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;

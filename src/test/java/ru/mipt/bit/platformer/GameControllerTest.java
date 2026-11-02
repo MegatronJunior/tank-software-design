@@ -1,14 +1,16 @@
 package ru.mipt.bit.platformer;
 
 import com.badlogic.gdx.math.GridPoint2;
-import ru.mipt.bit.platformer.comand.GameAction;
-import ru.mipt.bit.platformer.comand.MoveAction;
+import ru.mipt.bit.platformer.command.GameAction;
+import ru.mipt.bit.platformer.command.MoveAction;
 import ru.mipt.bit.platformer.control.TankControlStrategy;
 import ru.mipt.bit.platformer.model.Direction;
 import ru.mipt.bit.platformer.model.Field;
 import ru.mipt.bit.platformer.model.Tank;
 import ru.mipt.bit.platformer.model.Tree;
 import org.junit.jupiter.api.Test;
+import ru.mipt.bit.platformer.model.GameLevel;
+import ru.mipt.bit.platformer.model.GameObject;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
@@ -237,4 +239,27 @@ public class GameControllerTest {
         assertEquals(-180f, secondTank.rotationAngle());
     }
 
+    @Test
+    void updatesObjectsAddedAfterControllerCreation() {
+        GameLevel level = new GameLevel();
+        GameController controller = new GameController(
+                level,
+                List.of()
+        );
+
+        int[] updateCount = {0};
+
+        GameObject object = new GameObject() {
+            @Override
+            public void live(float deltaTime) {
+                updateCount[0]++;
+            }
+        };
+
+        level.add(object);
+
+        controller.update(0.1f);
+
+        assertEquals(1, updateCount[0]);
+    }
 }

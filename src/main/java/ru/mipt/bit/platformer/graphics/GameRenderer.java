@@ -7,9 +7,11 @@ import com.badlogic.gdx.maps.MapRenderer;
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 import java.util.List;
 import com.badlogic.gdx.utils.Disposable;
+import ru.mipt.bit.platformer.model.GameObject;
+import ru.mipt.bit.platformer.model.GameLevelListener;
 
 
-public class GameRenderer implements Disposable {
+public class GameRenderer implements Disposable, GameLevelListener {
 
     private final Batch batch;
     private final MapRenderer levelRenderer;
@@ -44,6 +46,20 @@ public class GameRenderer implements Disposable {
     public void dispose() {
         for (GameObjectRenderer renderer : objectRenderers) {
             renderer.dispose();
+        }
+    }
+
+    @Override
+    public void onObjectAdded(GameObject object) {
+        for (GameObjectRenderer renderer : objectRenderers) {
+            renderer.onObjectAdded(object);
+        }
+    }
+
+    @Override
+    public void onObjectRemoved(GameObject object) {
+        for (GameObjectRenderer renderer : objectRenderers) {
+            renderer.onObjectRemoved(object);
         }
     }
 }

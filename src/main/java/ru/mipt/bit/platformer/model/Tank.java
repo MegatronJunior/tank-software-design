@@ -16,19 +16,52 @@ public class Tank implements Obstacle {
 
     private final float movementSpeed;
 
-    public Tank( GridPoint2 initialCoordinates,
-                 Direction initialDirection,
-                 float movementSpeed) {
+    private static final int DEFAULT_HEALTH = 100;
+
+    private int health;
+
+    private static final float SHOOT_COOLDOWN_SECONDS = 0.5f;
+
+    private float reloadTimeRemaining;
+
+
+    public Tank(
+            GridPoint2 initialCoordinates,
+            Direction initialDirection,
+            float movementSpeed
+    ) {
+        this(
+                initialCoordinates,
+                initialDirection,
+                movementSpeed,
+                DEFAULT_HEALTH
+        );
+    }
+
+    public Tank(
+            GridPoint2 initialCoordinates,
+            Direction initialDirection,
+            float movementSpeed,
+            int initialHealth
+    ) {
         if (!Float.isFinite(movementSpeed) || movementSpeed <= 0f) {
             throw new IllegalArgumentException(
                     "Movement speed must be positive and finite"
             );
         }
+
+        if (initialHealth <= 0) {
+            throw new IllegalArgumentException(
+                    "Initial health must be positive"
+            );
+        }
+
         this.coordinates = new GridPoint2(initialCoordinates);
         this.destinationCoordinates = new GridPoint2(initialCoordinates);
         this.movementProgress = 1f;
         this.direction = initialDirection;
         this.movementSpeed = movementSpeed;
+        this.health = initialHealth;
     }
 
     public boolean hasFinishedCurrentMovement() {
@@ -76,6 +109,53 @@ public class Tank implements Obstacle {
         }
     }
 
+    public boolean canShoot() {
+        return !isDestroyed()
+                && hasFinishedCurrentMovement()
+                && reloadTimeRemaining <= 0f;
+    }
+
+    public Bullet shoot(float bulletMovementSpeed, int damage) {
+        if (!canShoot()) {
+            throw new IllegalStateException("Tank cannot shoot now");
+        }
+
+        GridPoint2 bulletCoordinates = currentCoordinates()
+                .add(direction.getVector());
+
+        Bullet bullet = new Bullet(
+                bulletCoordinates,
+                direction,
+                bulletMovementSpeed,
+                damage
+        );
+
+        reloadTimeRemaining = SHOOT_COOLDOWN_SECONDS;
+
+        return bullet;
+    }
+
+
+
+    public int health() {
+        return health;
+    }
+
+    public boolean isDestroyed() {
+        return health == 0;
+    }
+
+    public void takeDamage(int damage) {
+        if (damage <= 0) {
+            throw new IllegalArgumentException(
+                    "Damage must be positive"
+            );
+        }
+
+        health = Math.max(0, health - damage);
+    }
+
+
     public float rotationAngle() {
         return direction.getAngle();
     }
@@ -86,4 +166,12 @@ public class Tank implements Obstacle {
                 || destinationCoordinates.equals(coordinates);
     }
 
+    @Override
+    public void live(float deltaTime) {
+        continueMovement(deltaTime);
+        reloadTimeRemaining = Math.max(
+                0f,
+                reloadTimeRemaining - deltaTime
+        );
+    }
 }

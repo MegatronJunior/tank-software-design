@@ -1,4 +1,4 @@
-package ru.mipt.bit.platformer.comand;
+package ru.mipt.bit.platformer.command;
 
 public interface GameAction {
 

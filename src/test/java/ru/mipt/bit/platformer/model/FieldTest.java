@@ -1,8 +1,8 @@
 package ru.mipt.bit.platformer.model;
 
 import com.badlogic.gdx.math.GridPoint2;
-import ru.mipt.bit.platformer.comand.GameAction;
-import ru.mipt.bit.platformer.comand.MoveAction;
+import ru.mipt.bit.platformer.command.GameAction;
+import ru.mipt.bit.platformer.command.MoveAction;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -126,4 +126,32 @@ public class FieldTest {
 
         assertTrue(secondTank.hasFinishedCurrentMovement());
     }
+
+
+    @Test
+    void fieldUpdatesWhenTankIsRemovedFromLevel() {
+        GameLevel level = new GameLevel();
+
+        Tank tank = new Tank(
+                new GridPoint2(2, 2),
+                Direction.RIGHT,
+                0.4f
+        );
+
+        level.add(tank);
+
+        Field field = new Field(5, 5, List.of());
+        level.addListener(field);
+
+        assertFalse(field.isFree(new GridPoint2(2, 2)));
+
+        level.remove(tank);
+
+        assertTrue(field.isFree(new GridPoint2(2, 2)));
+
+        level.add(tank);
+
+        assertFalse(field.isFree(new GridPoint2(2, 2)));
+    }
+
 }

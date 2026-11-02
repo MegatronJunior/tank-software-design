@@ -149,4 +149,68 @@ public class TankTest {
                         Float.POSITIVE_INFINITY
                 ));
     }
+
+
+    @Test
+    void tankTakesDamageAndCanBeDestroyed() {
+        Tank tank = new Tank(
+                new GridPoint2(1, 1),
+                Direction.RIGHT,
+                0.4f
+        );
+
+        assertEquals(100, tank.health());
+        assertFalse(tank.isDestroyed());
+
+        tank.takeDamage(25);
+
+        assertEquals(75, tank.health());
+        assertFalse(tank.isDestroyed());
+
+        tank.takeDamage(75);
+
+        assertEquals(0, tank.health());
+        assertTrue(tank.isDestroyed());
+
+        tank.takeDamage(25);
+
+        assertEquals(0, tank.health());
+    }
+
+    @Test
+    void rejectsInvalidDamage() {
+        Tank tank = new Tank(
+                new GridPoint2(1, 1),
+                Direction.RIGHT,
+                0.4f
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> tank.takeDamage(0)
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> tank.takeDamage(-10)
+        );
+
+        assertEquals(100, tank.health());
+    }
+
+    @Test
+    void createsTankWithCustomHealth() {
+        Tank tank = new Tank(
+                new GridPoint2(1, 1),
+                Direction.RIGHT,
+                0.4f,
+                200
+        );
+
+        assertEquals(200, tank.health());
+
+        tank.takeDamage(50);
+
+        assertEquals(150, tank.health());
+    }
 }
