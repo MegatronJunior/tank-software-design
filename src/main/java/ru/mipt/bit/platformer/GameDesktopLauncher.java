@@ -1,5 +1,6 @@
 package ru.mipt.bit.platformer;
 
+import ru.mipt.bit.platformer.model.GameLevel;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
@@ -10,8 +11,8 @@ import com.badlogic.gdx.maps.MapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import ru.mipt.bit.platformer.comand.GameAction;
-import ru.mipt.bit.platformer.comand.MoveAction;
+import ru.mipt.bit.platformer.command.GameAction;
+import ru.mipt.bit.platformer.command.MoveAction;
 import ru.mipt.bit.platformer.control.DefaultKeyBindings;
 import ru.mipt.bit.platformer.control.KeyboardInputHandler;
 import ru.mipt.bit.platformer.control.RandomTankControlStrategy;
@@ -25,6 +26,8 @@ import ru.mipt.bit.platformer.model.Direction;
 import ru.mipt.bit.platformer.model.Field;
 import ru.mipt.bit.platformer.model.Obstacle;
 import ru.mipt.bit.platformer.model.Tank;
+import ru.mipt.bit.platformer.model.GameLevel;
+import ru.mipt.bit.platformer.graphics.BulletRenderer;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 import java.util.List;
@@ -32,10 +35,13 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.EnumMap;
+import ru.mipt.bit.platformer.command.ShootAction;
 
 public class GameDesktopLauncher implements ApplicationListener {
 
     private static final float TANK_MOVEMENT_SPEED = 0.4f;
+    private static final float BULLET_MOVEMENT_SPEED = 0.1f;
+    private static final int BULLET_DAMAGE = 25;
 
 
     private final boolean useFileLevel;
@@ -84,15 +90,10 @@ public class GameDesktopLauncher implements ApplicationListener {
         tanks.addAll(aiTanks);
 
 
-        List<GameObjectRenderer> objectRenderers =
-                new ArrayList<>();
-
-        objectRenderers.add(
-                new TankRenderer(groundLayer, tanks)
-        );
-
-        objectRenderers.add(
-                new TreeRenderer(groundLayer, level.trees())
+        List<GameObjectRenderer> objectRenderers = List.of(
+                new TankRenderer(groundLayer),
+                new TreeRenderer(groundLayer),
+                new BulletRenderer(groundLayer)
         );
 
         gameRenderer = new GameRenderer(
@@ -106,17 +107,30 @@ public class GameDesktopLauncher implements ApplicationListener {
 
         obstacles.addAll(tanks);
 
+
         Field field = new Field(
                 level.width(),
                 level.height(),
-                obstacles
+                List.of()
         );
 
+        GameLevel gameLevel = new GameLevel(field);
+        gameLevel.addAll(level.trees());
+        gameLevel.addAll(tanks);
+
+        gameLevel.addListener(field);
+        gameLevel.addListener(gameRenderer);
+
         List<TankControlStrategy> controlStrategies =
-                createControlStrategies(playerTank, aiTanks, field);
+                createControlStrategies(
+                        playerTank,
+                        aiTanks,
+                        field,
+                        gameLevel
+                );
 
         gameController = new GameController(
-                tanks,
+                gameLevel,
                 controlStrategies
         );
 
@@ -126,15 +140,26 @@ public class GameDesktopLauncher implements ApplicationListener {
     private List<TankControlStrategy> createControlStrategies(
             Tank playerTank,
             List<Tank> aiTanks,
-            Field field
+            Field field,
+            GameLevel gameLevel
     ) {
         Map<Direction, GameAction> playerMovementActions =
                 createMovementActions(playerTank, field);
 
+        GameAction playerShootAction = new ShootAction(
+                playerTank,
+                gameLevel,
+                BULLET_MOVEMENT_SPEED,
+                BULLET_DAMAGE
+        );
+
         KeyboardInputHandler keyboardControl =
                 new KeyboardInputHandler(
                         key -> Gdx.input.isKeyPressed(key),
-                        DefaultKeyBindings.create(playerMovementActions)
+                        DefaultKeyBindings.create(
+                                playerMovementActions,
+                                playerShootAction
+                        )
                 );
 
         List<TankControlStrategy> strategies =
@@ -143,6 +168,13 @@ public class GameDesktopLauncher implements ApplicationListener {
         strategies.add(keyboardControl);
 
         for (Tank aiTank : aiTanks) {
+            GameAction aiShootAction = new ShootAction(
+                    aiTank,
+                    gameLevel,
+                    BULLET_MOVEMENT_SPEED,
+                    BULLET_DAMAGE
+            );
+
             Map<Direction, GameAction> aiMovementActions =
                     createMovementActions(aiTank, field);
 
@@ -150,7 +182,8 @@ public class GameDesktopLauncher implements ApplicationListener {
                     new RandomTankControlStrategy(
                             aiTank,
                             new Random(),
-                            aiMovementActions
+                            aiMovementActions,
+                            aiShootAction
                     )
             );
         }

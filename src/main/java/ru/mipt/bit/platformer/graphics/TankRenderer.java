@@ -14,6 +14,9 @@ import java.util.List;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import ru.mipt.bit.platformer.model.GameObject;
 
 public class TankRenderer implements GameObjectRenderer {
 
@@ -21,14 +24,9 @@ public class TankRenderer implements GameObjectRenderer {
     private final TextureRegion textureRegion;
     private final Rectangle rectangle;
     private final TileMovement tileMovement;
-    private final List<Tank> tanks;
+    private final Set<Tank> tanks = new LinkedHashSet<>();
 
-    public TankRenderer(
-            TiledMapTileLayer groundLayer,
-            List<Tank> tanks
-    ) {
-        this.tanks = List.copyOf(tanks);
-
+    public TankRenderer(TiledMapTileLayer groundLayer) {
         texture = new Texture("images/tank_blue.png");
         textureRegion = new TextureRegion(texture);
         rectangle = createBoundingRectangle(textureRegion);
@@ -60,5 +58,19 @@ public class TankRenderer implements GameObjectRenderer {
     @Override
     public void dispose() {
         texture.dispose();
+    }
+
+    @Override
+    public void onObjectAdded(GameObject object) {
+        if (object instanceof Tank) {
+            tanks.add((Tank) object);
+        }
+    }
+
+    @Override
+    public void onObjectRemoved(GameObject object) {
+        if (object instanceof Tank) {
+            tanks.remove((Tank) object);
+        }
     }
 }
