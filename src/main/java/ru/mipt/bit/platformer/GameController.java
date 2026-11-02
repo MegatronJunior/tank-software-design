@@ -1,5 +1,9 @@
 package ru.mipt.bit.platformer;
 
+import ru.mipt.bit.platformer.comand.GameAction;
+import ru.mipt.bit.platformer.control.TankControlStrategy;
+import ru.mipt.bit.platformer.model.Tank;
+
 import java.util.ArrayList;
 import java.util.List;
 

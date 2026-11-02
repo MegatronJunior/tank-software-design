@@ -10,7 +10,22 @@ import com.badlogic.gdx.maps.MapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.math.GridPoint2;
+import ru.mipt.bit.platformer.comand.GameAction;
+import ru.mipt.bit.platformer.comand.MoveAction;
+import ru.mipt.bit.platformer.control.DefaultKeyBindings;
+import ru.mipt.bit.platformer.control.KeyboardInputHandler;
+import ru.mipt.bit.platformer.control.RandomTankControlStrategy;
+import ru.mipt.bit.platformer.control.TankControlStrategy;
+import ru.mipt.bit.platformer.graphics.GameObjectRenderer;
+import ru.mipt.bit.platformer.graphics.GameRenderer;
+import ru.mipt.bit.platformer.graphics.TankRenderer;
+import ru.mipt.bit.platformer.graphics.TreeRenderer;
+import ru.mipt.bit.platformer.level.*;
+import ru.mipt.bit.platformer.model.Direction;
+import ru.mipt.bit.platformer.model.Field;
+import ru.mipt.bit.platformer.model.Obstacle;
+import ru.mipt.bit.platformer.model.Tank;
+
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 import java.util.List;
 import java.util.Map;
@@ -47,23 +62,7 @@ public class GameDesktopLauncher implements ApplicationListener {
         MapRenderer levelRenderer = createSingleLayerMapRenderer(tiledMap, batch);
         TiledMapTileLayer groundLayer = getSingleLayer(tiledMap);
 
-        LevelProvider levelProvider;
-
-        if (useFileLevel) {
-            levelProvider = new FileLevelProvider(
-                    Gdx.files.internal("levels/level1.txt")
-            );
-        } else {
-            levelProvider = new RandomLevelProvider(
-                    new Random(), 10
-            );
-        }
-
-        LevelData level = levelProvider.createLevel(
-                groundLayer.getWidth(),
-                groundLayer.getHeight()
-        );
-
+        LevelData level = createLevel(groundLayer);
 
         Tank playerTank = new Tank(
                 level.tankCoordinates(),
@@ -159,7 +158,24 @@ public class GameDesktopLauncher implements ApplicationListener {
         return List.copyOf(strategies);
     }
 
+    private LevelData createLevel(TiledMapTileLayer groundLayer) {
+        LevelProvider levelProvider;
 
+        if (useFileLevel) {
+            levelProvider = new FileLevelProvider(
+                    Gdx.files.internal("levels/level1.txt")
+            );
+        } else {
+            levelProvider = new RandomLevelProvider(
+                    new Random(), 10
+            );
+        }
+
+        return levelProvider.createLevel(
+                groundLayer.getWidth(),
+                groundLayer.getHeight()
+        );
+    }
 
     private Map<Direction, GameAction> createMovementActions(
             Tank tank,

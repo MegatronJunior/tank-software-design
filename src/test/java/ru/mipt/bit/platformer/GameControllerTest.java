@@ -1,9 +1,14 @@
 package ru.mipt.bit.platformer;
 
 import com.badlogic.gdx.math.GridPoint2;
+import ru.mipt.bit.platformer.comand.GameAction;
+import ru.mipt.bit.platformer.comand.MoveAction;
+import ru.mipt.bit.platformer.control.TankControlStrategy;
+import ru.mipt.bit.platformer.model.Direction;
+import ru.mipt.bit.platformer.model.Field;
+import ru.mipt.bit.platformer.model.Tank;
+import ru.mipt.bit.platformer.model.Tree;
 import org.junit.jupiter.api.Test;
-
-import java.util.EnumSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
