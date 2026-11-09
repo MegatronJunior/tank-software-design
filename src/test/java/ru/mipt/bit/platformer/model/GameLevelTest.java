@@ -204,4 +204,51 @@ class GameLevelTest {
         assertTrue(level.objects().isEmpty());
     }
 
+    @Test
+    void shooterDoesNotTakeDamageFromOwnBullet() {
+        GameLevel level = new GameLevel();
+
+        Tank shooter = new Tank(
+                new GridPoint2(1, 1),
+                Direction.RIGHT,
+                0.4f
+        );
+
+        level.add(shooter);
+
+        Bullet bullet = shooter.shoot(0.1f, 25);
+        level.add(bullet);
+
+        shooter.startMovement(Direction.RIGHT);
+        level.live(0f);
+
+        assertEquals(100, shooter.health());
+        assertTrue(level.objects().contains(bullet));
+    }
+
+    @Test
+    void bulletStillDamagesEnemyTank() {
+        GameLevel level = new GameLevel();
+
+        Tank shooter = new Tank(
+                new GridPoint2(1, 1),
+                Direction.RIGHT,
+                0.4f
+        );
+
+        Tank enemy = new Tank(
+                new GridPoint2(2, 1),
+                Direction.LEFT,
+                0.4f
+        );
+
+        level.add(shooter);
+        level.add(enemy);
+        level.add(shooter.shoot(0.1f, 25));
+
+        assertEquals(100, shooter.health());
+        assertEquals(75, enemy.health());
+        assertEquals(2, level.objects().size());
+    }
+
 }
