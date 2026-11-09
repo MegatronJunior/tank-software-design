@@ -10,6 +10,7 @@ public final class Bullet implements GameObject {
     private final Direction direction;
     private final float movementSpeed;
     private final int damage;
+    private final Tank shooter;
 
     private float elapsedTime;
 
@@ -18,6 +19,16 @@ public final class Bullet implements GameObject {
             Direction direction,
             float movementSpeed,
             int damage
+    ) {
+        this(coordinates, direction, movementSpeed, damage, null);
+    }
+
+    public Bullet(
+            GridPoint2 coordinates,
+            Direction direction,
+            float movementSpeed,
+            int damage,
+            Tank shooter
     ) {
         if (!Float.isFinite(movementSpeed) || movementSpeed <= 0f) {
             throw new IllegalArgumentException(
@@ -37,6 +48,7 @@ public final class Bullet implements GameObject {
         this.direction = Objects.requireNonNull(direction);
         this.movementSpeed = movementSpeed;
         this.damage = damage;
+        this.shooter = shooter;
     }
 
     public GridPoint2 coordinates() {
@@ -53,6 +65,10 @@ public final class Bullet implements GameObject {
 
     public int damage() {
         return damage;
+    }
+
+    public boolean wasFiredBy(Tank tank) {
+        return shooter == tank;
     }
 
     @Override

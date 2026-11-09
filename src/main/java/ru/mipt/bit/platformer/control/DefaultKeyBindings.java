@@ -3,6 +3,7 @@ package ru.mipt.bit.platformer.control;
 import ru.mipt.bit.platformer.command.GameAction;
 import ru.mipt.bit.platformer.model.Direction;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,5 +33,16 @@ public final class DefaultKeyBindings {
 
                 Map.entry(SPACE, shootAction)
         );
+    }
+
+    public static List<Map.Entry<Integer, GameAction>> create(
+            Map<Direction, GameAction> movementActions,
+            GameAction shootAction,
+            GameAction toggleHealthBarsAction
+    ) {
+        List<Map.Entry<Integer, GameAction>> bindings =
+                new ArrayList<>(create(movementActions, shootAction));
+        bindings.add(Map.entry(L, toggleHealthBarsAction));
+        return List.copyOf(bindings);
     }
 }
