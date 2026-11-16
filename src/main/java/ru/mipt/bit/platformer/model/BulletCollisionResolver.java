@@ -1,5 +1,8 @@
 package ru.mipt.bit.platformer.model;
 
+/**
+ * Domain service that resolves bullet collisions and applies damage.
+ */
 public final class BulletCollisionResolver {
 
     public void resolve(Bullet bullet, GameLevel level) {

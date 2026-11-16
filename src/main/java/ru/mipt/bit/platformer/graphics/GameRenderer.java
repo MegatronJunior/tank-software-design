@@ -11,6 +11,9 @@ import ru.mipt.bit.platformer.model.GameObject;
 import ru.mipt.bit.platformer.model.GameLevelListener;
 
 
+/**
+ * Infrastructure outbound adapter: listens to domain level events and updates the visual representation.
+ */
 public class GameRenderer implements Disposable, GameLevelListener {
 
     private final Batch batch;

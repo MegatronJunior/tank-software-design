@@ -4,6 +4,9 @@ import com.badlogic.gdx.math.GridPoint2;
 
 import java.util.Objects;
 
+/**
+ * Domain entity representing a moving projectile.
+ */
 public final class Bullet implements GameObject {
 
     private final GridPoint2 coordinates;

@@ -15,6 +15,9 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.NoSuchElementException;
 
+/**
+ * Infrastructure utilities for LibGDX map and graphics operations.
+ */
 public final class GdxGameUtils {
 
     private GdxGameUtils() {

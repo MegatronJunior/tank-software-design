@@ -9,6 +9,9 @@ import java.util.Map;
 
 import static com.badlogic.gdx.Input.Keys.*;
 
+/**
+ * Infrastructure configuration for mapping keyboard keys to application commands.
+ */
 public final class DefaultKeyBindings {
 
     private DefaultKeyBindings() {

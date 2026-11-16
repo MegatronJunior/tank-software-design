@@ -5,6 +5,10 @@ import ru.mipt.bit.platformer.model.Direction;
 import ru.mipt.bit.platformer.model.Field;
 import ru.mipt.bit.platformer.model.Tank;
 
+/**
+ * Application use case for tank movement.
+ * It currently depends directly on Field; a cell-occupancy port is missing.
+ */
 public class MoveAction implements GameAction {
 
     private final Tank tank;

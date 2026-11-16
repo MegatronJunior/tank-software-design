@@ -5,6 +5,9 @@ import ru.mipt.bit.platformer.model.Tree;
 
 import java.util.List;
 
+/**
+ * Application data transfer object containing the initial state of a level.
+ */
 public class LevelData {
 
     private final int width;

@@ -5,6 +5,10 @@ import ru.mipt.bit.platformer.model.Tank;
 
 import java.util.Objects;
 
+/**
+ * Application use case for shooting.
+ * It currently depends directly on GameLevel; a level-update port is missing.
+ */
 public final class ShootAction implements GameAction {
 
     private final Tank tank;

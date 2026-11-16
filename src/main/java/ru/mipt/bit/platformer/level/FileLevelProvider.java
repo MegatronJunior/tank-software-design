@@ -8,6 +8,9 @@ import ru.mipt.bit.platformer.model.Tree;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Infrastructure outbound adapter: loads level data from a file through LevelProvider.
+ */
 public class FileLevelProvider implements LevelProvider {
 
     private final FileHandle file;
