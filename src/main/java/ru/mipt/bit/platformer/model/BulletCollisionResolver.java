@@ -12,6 +12,11 @@ public final class BulletCollisionResolver {
                 continue;
             }
 
+            if (object instanceof Tank
+                    && bullet.wasFiredBy((Tank) object)) {
+                continue;
+            }
+
             boolean collided = false;
 
             if (object instanceof Obstacle) {

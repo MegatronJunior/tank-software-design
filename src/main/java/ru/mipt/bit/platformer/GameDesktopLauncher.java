@@ -13,12 +13,14 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import ru.mipt.bit.platformer.command.GameAction;
 import ru.mipt.bit.platformer.command.MoveAction;
+import ru.mipt.bit.platformer.command.ToggleHealthBarsAction;
 import ru.mipt.bit.platformer.control.DefaultKeyBindings;
 import ru.mipt.bit.platformer.control.KeyboardInputHandler;
 import ru.mipt.bit.platformer.control.RandomTankControlStrategy;
 import ru.mipt.bit.platformer.control.TankControlStrategy;
 import ru.mipt.bit.platformer.graphics.GameObjectRenderer;
 import ru.mipt.bit.platformer.graphics.GameRenderer;
+import ru.mipt.bit.platformer.graphics.HealthBarRendererDecorator;
 import ru.mipt.bit.platformer.graphics.TankRenderer;
 import ru.mipt.bit.platformer.graphics.TreeRenderer;
 import ru.mipt.bit.platformer.level.*;
@@ -35,6 +37,7 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.EnumMap;
+import java.util.Set;
 import ru.mipt.bit.platformer.command.ShootAction;
 
 public class GameDesktopLauncher implements ApplicationListener {
@@ -90,8 +93,14 @@ public class GameDesktopLauncher implements ApplicationListener {
         tanks.addAll(aiTanks);
 
 
+        HealthBarRendererDecorator healthBarRenderer =
+                new HealthBarRendererDecorator(
+                        new TankRenderer(groundLayer),
+                        groundLayer
+                );
+
         List<GameObjectRenderer> objectRenderers = List.of(
-                new TankRenderer(groundLayer),
+                healthBarRenderer,
                 new TreeRenderer(groundLayer),
                 new BulletRenderer(groundLayer)
         );
@@ -126,7 +135,8 @@ public class GameDesktopLauncher implements ApplicationListener {
                         playerTank,
                         aiTanks,
                         field,
-                        gameLevel
+                        gameLevel,
+                        new ToggleHealthBarsAction(healthBarRenderer::toggleVisibility)
                 );
 
         gameController = new GameController(
@@ -141,7 +151,8 @@ public class GameDesktopLauncher implements ApplicationListener {
             Tank playerTank,
             List<Tank> aiTanks,
             Field field,
-            GameLevel gameLevel
+            GameLevel gameLevel,
+            GameAction toggleHealthBarsAction
     ) {
         Map<Direction, GameAction> playerMovementActions =
                 createMovementActions(playerTank, field);
@@ -158,8 +169,10 @@ public class GameDesktopLauncher implements ApplicationListener {
                         key -> Gdx.input.isKeyPressed(key),
                         DefaultKeyBindings.create(
                                 playerMovementActions,
-                                playerShootAction
-                        )
+                                playerShootAction,
+                                toggleHealthBarsAction
+                        ),
+                        Set.of(com.badlogic.gdx.Input.Keys.L)
                 );
 
         List<TankControlStrategy> strategies =

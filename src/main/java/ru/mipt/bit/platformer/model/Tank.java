@@ -18,6 +18,7 @@ public class Tank implements Obstacle {
 
     private static final int DEFAULT_HEALTH = 100;
 
+    private final int maxHealth;
     private int health;
 
     private static final float SHOOT_COOLDOWN_SECONDS = 0.5f;
@@ -61,6 +62,7 @@ public class Tank implements Obstacle {
         this.movementProgress = 1f;
         this.direction = initialDirection;
         this.movementSpeed = movementSpeed;
+        this.maxHealth = initialHealth;
         this.health = initialHealth;
     }
 
@@ -127,7 +129,8 @@ public class Tank implements Obstacle {
                 bulletCoordinates,
                 direction,
                 bulletMovementSpeed,
-                damage
+                damage,
+                this
         );
 
         reloadTimeRemaining = SHOOT_COOLDOWN_SECONDS;
@@ -139,6 +142,10 @@ public class Tank implements Obstacle {
 
     public int health() {
         return health;
+    }
+
+    public float healthFraction() {
+        return (float) health / maxHealth;
     }
 
     public boolean isDestroyed() {
