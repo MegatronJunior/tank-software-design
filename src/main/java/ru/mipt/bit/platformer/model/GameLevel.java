@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Domain model of level contents and their lifecycle.
+ * Publishes changes through GameLevelListener; collision handling is still coupled to a concrete resolver.
+ */
 public final class GameLevel {
 
     private final Set<GameObject> objects = new LinkedHashSet<>();

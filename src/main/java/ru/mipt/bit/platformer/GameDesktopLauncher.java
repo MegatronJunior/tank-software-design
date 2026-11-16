@@ -40,11 +40,14 @@ import java.util.EnumMap;
 import java.util.Set;
 import ru.mipt.bit.platformer.command.ShootAction;
 
+/**
+ * Infrastructure: desktop entry point and composition root that connects the game, input and rendering.
+ */
 public class GameDesktopLauncher implements ApplicationListener {
 
     private static final float TANK_MOVEMENT_SPEED = 0.4f;
     private static final float BULLET_MOVEMENT_SPEED = 0.1f;
-    private static final int BULLET_DAMAGE = 25;
+    private static final int BULLET_DAMAGE = 10;
 
 
     private final boolean useFileLevel;

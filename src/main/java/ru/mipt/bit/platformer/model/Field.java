@@ -7,6 +7,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Domain model of field bounds and occupied cells. Subscribes to level events to keep occupancy current.
+ */
 public class Field implements GameLevelListener {
 
     private final int width;

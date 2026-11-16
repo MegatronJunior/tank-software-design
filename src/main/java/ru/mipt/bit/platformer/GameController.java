@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Application service: executes game commands and advances the domain model.
+ */
 public class GameController {
 
     private final GameLevel level;

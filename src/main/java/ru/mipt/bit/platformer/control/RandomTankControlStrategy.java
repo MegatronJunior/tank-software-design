@@ -12,6 +12,9 @@ import java.util.Random;
 import java.util.Objects;
 
 
+/**
+ * Infrastructure inbound adapter: generates commands for AI-controlled tanks.
+ */
 public final class RandomTankControlStrategy
         implements TankControlStrategy {
 

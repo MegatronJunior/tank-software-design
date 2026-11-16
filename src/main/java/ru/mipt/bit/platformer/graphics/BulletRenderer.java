@@ -12,6 +12,9 @@ import ru.mipt.bit.platformer.model.GameObject;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * Infrastructure rendering adapter for bullet entities.
+ */
 public final class BulletRenderer implements GameObjectRenderer {
 
     private final Set<Bullet> bullets = new LinkedHashSet<>();

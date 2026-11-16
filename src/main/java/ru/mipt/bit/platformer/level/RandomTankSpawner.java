@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
+/**
+ * Application service that creates randomly positioned enemy tanks.
+ */
 public final class RandomTankSpawner {
 
     private final Random random;

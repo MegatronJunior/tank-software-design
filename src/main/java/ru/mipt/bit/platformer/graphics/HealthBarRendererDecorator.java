@@ -15,6 +15,9 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Infrastructure decorator that adds health bars to a tank renderer.
+ */
 public final class HealthBarRendererDecorator implements GameObjectRenderer {
 
     private static final float BAR_WIDTH_RATIO = 0.65f;

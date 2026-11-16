@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.IntPredicate;
 
+/**
+ * Infrastructure inbound adapter: converts keyboard state into game commands.
+ */
 public class KeyboardInputHandler implements TankControlStrategy{
 
     private final IntPredicate isKeyPressed;

@@ -2,6 +2,9 @@ package ru.mipt.bit.platformer.model;
 
 import com.badlogic.gdx.math.GridPoint2;
 
+/**
+ * Domain value type defining movement directions.
+ */
 public enum Direction {
     UP(0, 1, 90f),
     DOWN(0, -1, -90f),

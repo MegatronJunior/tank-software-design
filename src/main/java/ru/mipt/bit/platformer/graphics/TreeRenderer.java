@@ -17,6 +17,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import ru.mipt.bit.platformer.model.GameObject;
 
+/**
+ * Infrastructure rendering adapter for tree entities.
+ */
 public class TreeRenderer implements GameObjectRenderer {
 
     private final Texture texture;

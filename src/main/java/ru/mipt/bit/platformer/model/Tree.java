@@ -2,6 +2,9 @@ package ru.mipt.bit.platformer.model;
 
 import com.badlogic.gdx.math.GridPoint2;
 
+/**
+ * Domain entity representing an impassable tree.
+ */
 public class Tree implements Obstacle {
 
     private final GridPoint2 coordinates;

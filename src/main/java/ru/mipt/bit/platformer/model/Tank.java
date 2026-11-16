@@ -1,11 +1,18 @@
 package ru.mipt.bit.platformer.model;
 
 import com.badlogic.gdx.math.GridPoint2;
+import ru.mipt.bit.platformer.model.state.TankState;
+import ru.mipt.bit.platformer.model.state.TankStateResolver;
+
+import java.util.Objects;
 
 import static com.badlogic.gdx.math.MathUtils.isEqual;
 import static com.badlogic.gdx.math.MathUtils.clamp;
 
 
+/**
+ * Domain entity that owns health, movement and shooting behavior through TankState.
+ */
 public class Tank implements Obstacle {
 
     private final GridPoint2 coordinates;
@@ -20,6 +27,8 @@ public class Tank implements Obstacle {
 
     private final int maxHealth;
     private int health;
+    private final TankStateResolver stateResolver;
+    private TankState state;
 
     private static final float SHOOT_COOLDOWN_SECONDS = 0.5f;
 
@@ -45,6 +54,22 @@ public class Tank implements Obstacle {
             float movementSpeed,
             int initialHealth
     ) {
+        this(
+                initialCoordinates,
+                initialDirection,
+                movementSpeed,
+                initialHealth,
+                new TankStateResolver()
+        );
+    }
+
+    public Tank(
+            GridPoint2 initialCoordinates,
+            Direction initialDirection,
+            float movementSpeed,
+            int initialHealth,
+            TankStateResolver stateResolver
+    ) {
         if (!Float.isFinite(movementSpeed) || movementSpeed <= 0f) {
             throw new IllegalArgumentException(
                     "Movement speed must be positive and finite"
@@ -64,6 +89,8 @@ public class Tank implements Obstacle {
         this.movementSpeed = movementSpeed;
         this.maxHealth = initialHealth;
         this.health = initialHealth;
+        this.stateResolver = Objects.requireNonNull(stateResolver);
+        this.state = stateResolver.resolve(health, maxHealth);
     }
 
     public boolean hasFinishedCurrentMovement() {
@@ -100,8 +127,11 @@ public class Tank implements Obstacle {
     }
 
     public void continueMovement(float deltaTime) {
+        float movementDuration =
+                movementSpeed * state.movementDurationMultiplier();
+
         movementProgress = clamp(
-                movementProgress + deltaTime / movementSpeed,
+                movementProgress + deltaTime / movementDuration,
                 0f,
                 1f
         );
@@ -113,6 +143,7 @@ public class Tank implements Obstacle {
 
     public boolean canShoot() {
         return !isDestroyed()
+                && state.allowsShooting()
                 && hasFinishedCurrentMovement()
                 && reloadTimeRemaining <= 0f;
     }
@@ -133,12 +164,17 @@ public class Tank implements Obstacle {
                 this
         );
 
-        reloadTimeRemaining = SHOOT_COOLDOWN_SECONDS;
+        reloadTimeRemaining = SHOOT_COOLDOWN_SECONDS
+                * state.shootingCooldownMultiplier();
 
         return bullet;
     }
 
 
+
+    public TankState state() {
+        return state;
+    }
 
     public int health() {
         return health;
@@ -160,6 +196,7 @@ public class Tank implements Obstacle {
         }
 
         health = Math.max(0, health - damage);
+        state = stateResolver.resolve(health, maxHealth);
     }
 
 

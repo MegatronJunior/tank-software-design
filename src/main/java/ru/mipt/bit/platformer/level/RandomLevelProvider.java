@@ -9,6 +9,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Infrastructure outbound adapter: produces random level data through LevelProvider.
+ */
 public class RandomLevelProvider implements LevelProvider {
 
     private final Random random;

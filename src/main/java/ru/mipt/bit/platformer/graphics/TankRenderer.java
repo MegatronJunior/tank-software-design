@@ -18,6 +18,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import ru.mipt.bit.platformer.model.GameObject;
 
+/**
+ * Infrastructure rendering adapter for tank entities.
+ */
 public class TankRenderer implements GameObjectRenderer {
 
     private final Texture texture;
