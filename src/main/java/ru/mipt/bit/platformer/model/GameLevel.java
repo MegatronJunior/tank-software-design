@@ -90,6 +90,13 @@ public final class GameLevel {
                 continue;
             }
 
+            if (object instanceof Bullet) {
+                resolveBullet((Bullet) object);
+                if (!objects.contains(object)) {
+                    continue;
+                }
+            }
+
             object.live(deltaTime);
 
             if (object instanceof Bullet) {

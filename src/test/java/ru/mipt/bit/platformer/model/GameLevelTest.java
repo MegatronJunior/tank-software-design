@@ -251,4 +251,58 @@ class GameLevelTest {
         assertEquals(2, level.objects().size());
     }
 
+    @Test
+    void bulletHitsTankThatReservesItsCurrentCell() {
+        GameLevel level = new GameLevel();
+
+        Tank tank = new Tank(
+                new GridPoint2(1, 1),
+                Direction.RIGHT,
+                0.4f
+        );
+
+        Bullet bullet = new Bullet(
+                new GridPoint2(2, 1),
+                Direction.RIGHT,
+                0.1f,
+                25
+        );
+
+        level.add(tank);
+        level.add(bullet);
+
+        tank.startMovement(Direction.RIGHT);
+        level.live(0.1f);
+
+        assertEquals(75, tank.health());
+        assertFalse(level.objects().contains(bullet));
+        assertEquals(new GridPoint2(2, 1), bullet.coordinates());
+    }
+
+    @Test
+    void bulletHitsTankAfterEnteringItsCell() {
+        GameLevel level = new GameLevel();
+
+        Tank tank = new Tank(
+                new GridPoint2(3, 1),
+                Direction.LEFT,
+                0.4f
+        );
+
+        Bullet bullet = new Bullet(
+                new GridPoint2(2, 1),
+                Direction.RIGHT,
+                0.1f,
+                25
+        );
+
+        level.add(tank);
+        level.add(bullet);
+        level.live(0.1f);
+
+        assertEquals(75, tank.health());
+        assertFalse(level.objects().contains(bullet));
+        assertEquals(new GridPoint2(3, 1), bullet.coordinates());
+    }
+
 }

@@ -3,7 +3,7 @@ package ru.mipt.bit.platformer;
 import ru.mipt.bit.platformer.command.GameAction;
 import ru.mipt.bit.platformer.control.TankControlStrategy;
 import ru.mipt.bit.platformer.model.GameLevel;
-import ru.mipt.bit.platformer.model.Tank;
+import ru.mipt.bit.platformer.model.GameObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,22 +14,22 @@ public class GameController {
     private final GameLevel level;
     private final List<TankControlStrategy> controlStrategies;
 
-    public GameController(Tank tank) {
-        this(List.of(tank));
+    public GameController(GameObject object) {
+        this(List.of(object));
     }
 
-    public GameController(List<Tank> tanks) {
-        this(tanks, List.of());
+    public GameController(List<? extends GameObject> objects) {
+        this(objects, List.of());
     }
 
     public GameController(
-            List<Tank> tanks,
+            List<? extends GameObject> objects,
             List<TankControlStrategy> controlStrategies
     ) {
         this(new GameLevel(), controlStrategies);
 
-        for (Tank tank : tanks) {
-            level.add(tank);
+        for (GameObject object : objects) {
+            level.add(object);
         }
     }
 
